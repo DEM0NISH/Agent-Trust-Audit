@@ -11,8 +11,9 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 Copy-Item .env.example .env
-# Create a free [OpenRouter account](https://openrouter.ai/keys) (no card required) and put its API key in .env as OPENROUTER_API_KEY.
 ```
+
+Create a [free OpenRouter account](https://openrouter.ai/keys) (no card required), then put its API key in `.env` as `OPENROUTER_API_KEY`.
 
 The test agent can read files under this repository, or fetch `http://127.0.0.1:5000/` for the hostile-target run. The fetch tool rejects all other hosts, redirects, and ports. Only use the lab page for Experiment 2.
 
@@ -54,3 +55,4 @@ See [Experiment 1](results/experiment1.json), [Experiment 2](results/experiment2
 - One model and one canary wording do not generalize across models or injection styles.
 - The loop logs only model-emitted text, actions, and observations; it does not expose private chain-of-thought.
 - The hostile page runs on loopback, but the agent provider receives the prompt and fetched page content over its normal API connection.
+

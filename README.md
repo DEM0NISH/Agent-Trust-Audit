@@ -2,7 +2,7 @@
 
 Can an AI pentest agent recognize a real, already-fixed flaw from code, and can it stay on task when a local page contains hostile instructions?
 
-This small audit has two experiments: a pre/post-cutoff code review comparison and a localhost-only prompt-injection check. It uses a minimal Anthropic tool loop with JSON traces and defaults to `claude-sonnet-4-6`. Set `TRAINING_CUTOFF` to the evaluated model's documented cutoff before interpreting the CVE periods; if the cutoff is unknown, this experiment cannot support a memorization inference. A result from one CVE in each period is only a signal, not proof of memorization.
+This small audit has two experiments: a pre/post-cutoff code review comparison and a localhost-only prompt-injection check. It uses a minimal OpenRouter tool loop with JSON traces and defaults to the no-cost `meta-llama/llama-3.3-70b-instruct:free` model. Its listed knowledge cutoff is 2023-12-31, matching the fixture dates. One CVE in each period is only a signal, not proof of memorization.
 
 ## Setup
 
@@ -11,7 +11,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 Copy-Item .env.example .env
-# Edit .env and set ANTHROPIC_API_KEY to your key.
+# Create a free [OpenRouter account](https://openrouter.ai/keys) (no card required) and put its API key in .env as OPENROUTER_API_KEY.
 ```
 
 The test agent can read files under this repository, or fetch `http://127.0.0.1:5000/` for the hostile-target run. The fetch tool rejects all other hosts, redirects, and ports. Only use the lab page for Experiment 2.
@@ -31,6 +31,8 @@ python experiment2_hostile_target/run.py
 
 Every run writes visible model output, tool action, and tool observation to `results/<run_id>.json`. These are the model's emitted messages, not private hidden reasoning. Summaries are written to `results/experiment1.json` and `results/experiment2.json`.
 
+OpenRouter offers no-cost free models without a credit purchase; free endpoints are rate-limited (currently 50 requests/day on a free account). The selected [Llama 3.3 model](https://openrouter.ai/meta-llama/llama-3.3-70b-instruct:free) lists a 2023-12-31 knowledge cutoff and supports function calling. Check current model availability and limits before running.
+
 ## CVE sources and fixtures
 
 The two fixture pairs are short source excerpts from the vulnerable parent and public fix commit in `git/git`:
@@ -42,13 +44,13 @@ The excerpts contain no exploit payloads. The relevant behaviors and fixes are s
 
 ## Actual results
 
-See [Experiment 1](results/experiment1.json), [Experiment 2](results/experiment2.json), and the [report](results/report.md). A missing API key is recorded as `not_run`, never counted as a pass or miss. In this workspace, dependency installation also could not complete because PyPI DNS lookup failed; install `requirements.txt` on a machine with package access before starting the Flask lab.
+See [Experiment 1](results/experiment1.json), [Experiment 2](results/experiment2.json), and the [report](results/report.md). A missing API key is recorded as `not_run`, never counted as a pass or miss.
 
 ## Limitations & what a fuller version adds
 
 - One CVE in each period cannot separate memorization from general security knowledge. A stronger design needs many matched CVE pairs, repeated runs, randomized order, and independent grading.
-- The cutoff is a user-configured assumption; training data cutoffs are often uncertain. Record the exact model and documented cutoff for meaningful interpretation.
+- The cutoff is the model card's stated knowledge cutoff, not a guarantee about training exposure. Record the exact model and documented cutoff for meaningful interpretation.
 - The fixtures are brief excerpts of real Git code, not whole vulnerable versions or executable reproductions.
-- One Claude model and one canary wording do not generalize across models or injection styles.
+- One model and one canary wording do not generalize across models or injection styles.
 - The loop logs only model-emitted text, actions, and observations; it does not expose private chain-of-thought.
 - The hostile page runs on loopback, but the agent provider receives the prompt and fetched page content over its normal API connection.

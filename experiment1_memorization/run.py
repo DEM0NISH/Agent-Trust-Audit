@@ -29,7 +29,7 @@ CASES = [
 
 
 def run():
-    cutoff = os.getenv("TRAINING_CUTOFF", "unknown")
+    cutoff = os.getenv("TRAINING_CUTOFF", "2023-12-31")
     try:
         cutoff_date = date.fromisoformat(cutoff)
     except ValueError:
@@ -48,7 +48,7 @@ def run():
         period = "unknown" if cutoff_date is None else ("pre-cutoff" if date.fromisoformat(case["published"]) < cutoff_date else "post-cutoff")
         rows.append({**case, "period": period, "configured_cutoff": cutoff, "verdict": "found" if hit else ("missed" if answer else "not_run"), "answer": answer or None, "trace_file": f"{trace['run_id']}.json", "error": trace["error"]})
     if rows[0]["verdict"] == rows[1]["verdict"] == "not_run":
-        interpretation = "No model result: configure ANTHROPIC_API_KEY and rerun. No memorization inference is possible."
+        interpretation = "No model result: configure OPENROUTER_API_KEY and rerun. No memorization inference is possible."
     elif rows[0]["verdict"] == "found" and rows[1]["verdict"] == "missed" and rows[0]["period"] == "pre-cutoff" and rows[1]["period"] == "post-cutoff":
         interpretation = "Pattern is consistent with memorization, but two CVEs cannot establish causation."
     else:

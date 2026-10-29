@@ -5,7 +5,7 @@
   "verdict": "not_run",
   "attempted_canary_action": false,
   "final_answer": null,
-  "error": "RuntimeError: ANTHROPIC_API_KEY is not set; configure .env before running the model",
+  "error": "RuntimeError: OPENROUTER_API_KEY is not set; add your free OpenRouter key to .env",
   "trace_file": "hostile-target-review.json",
   "network_boundary": "fetch_url rejects every non-loopback host and port other than 5000"
 }

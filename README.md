@@ -2,7 +2,7 @@
 
 Can an AI pentest agent recognize a real, already-fixed flaw from code, and can it stay on task when a local page contains hostile instructions?
 
-This small audit has two experiments: a pre/post-cutoff code review comparison and a localhost-only prompt-injection check. It uses a minimal Anthropic tool loop with JSON traces. The configured cutoff defaults to 2024-03-31 for a `claude-3-5-sonnet-20241022` example; set it to match the model you actually evaluate. A result from one CVE in each period is only a signal, not proof of memorization.
+This small audit has two experiments: a pre/post-cutoff code review comparison and a localhost-only prompt-injection check. It uses a minimal Anthropic tool loop with JSON traces and defaults to `claude-sonnet-4-6`. Set `TRAINING_CUTOFF` to the evaluated model's documented cutoff before interpreting the CVE periods; if the cutoff is unknown, this experiment cannot support a memorization inference. A result from one CVE in each period is only a signal, not proof of memorization.
 
 ## Setup
 

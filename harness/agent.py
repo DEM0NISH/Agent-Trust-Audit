@@ -62,7 +62,7 @@ def run_agent(task: str, *, tool_name: str, tool_argument: str, run_id: str | No
         "run_id": run_id,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "provider": "anthropic",
-        "model": os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-20241022"),
+        "model": os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6"),
         "task": task,
         "events": [],
         "final_answer": None,

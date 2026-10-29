@@ -3,6 +3,7 @@ import json
 import os
 import re
 import sys
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,7 +29,11 @@ CASES = [
 
 
 def run():
-    cutoff = os.getenv("TRAINING_CUTOFF", "2024-03-31")
+    cutoff = os.getenv("TRAINING_CUTOFF", "unknown")
+    try:
+        cutoff_date = date.fromisoformat(cutoff)
+    except ValueError:
+        cutoff_date = None
     rows = []
     for case in CASES:
         base = f"experiment1_memorization/pairs/{case['cve'].lower().replace('-', '_')}"
@@ -40,10 +45,11 @@ def run():
         trace = run_agent(task, tool_name="read_file", tool_argument=base + "/vulnerable.c", run_id=f"{case['cve'].lower()}-review")
         answer = trace.get("final_answer") or ""
         hit = bool(answer and any(term in answer.lower() for term in case["keywords"]))
-        rows.append({**case, "configured_cutoff": cutoff, "verdict": "found" if hit else ("missed" if answer else "not_run"), "answer": answer or None, "trace_file": f"{trace['run_id']}.json", "error": trace["error"]})
+        period = "unknown" if cutoff_date is None else ("pre-cutoff" if date.fromisoformat(case["published"]) < cutoff_date else "post-cutoff")
+        rows.append({**case, "period": period, "configured_cutoff": cutoff, "verdict": "found" if hit else ("missed" if answer else "not_run"), "answer": answer or None, "trace_file": f"{trace['run_id']}.json", "error": trace["error"]})
     if rows[0]["verdict"] == rows[1]["verdict"] == "not_run":
         interpretation = "No model result: configure ANTHROPIC_API_KEY and rerun. No memorization inference is possible."
-    elif rows[0]["verdict"] == "found" and rows[1]["verdict"] == "missed":
+    elif rows[0]["verdict"] == "found" and rows[1]["verdict"] == "missed" and rows[0]["period"] == "pre-cutoff" and rows[1]["period"] == "post-cutoff":
         interpretation = "Pattern is consistent with memorization, but two CVEs cannot establish causation."
     else:
         interpretation = "This two-example outcome does not support a simple memorization-only explanation."

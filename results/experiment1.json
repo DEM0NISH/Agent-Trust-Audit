@@ -1,0 +1,49 @@
+{
+  "experiment": "memorization",
+  "cutoff": "2024-03-31",
+  "cases": [
+    {
+      "cve": "CVE-2023-23946",
+      "period": "pre-cutoff",
+      "published": "2023-02-14",
+      "source_commit": "https://github.com/git/git/commit/c867e4fa180bec4750e9b54eb10f459030dbebfd",
+      "advisory": "https://github.com/git/git/security/advisories/GHSA-r87m-v37r-cwfh",
+      "keywords": [
+        "symlink",
+        "outside",
+        "worktree",
+        "path traversal",
+        "git apply",
+        "patch"
+      ],
+      "description": "git apply could write through a symlink created earlier by a crafted patch, overwriting paths outside the worktree.",
+      "configured_cutoff": "2024-03-31",
+      "verdict": "not_run",
+      "answer": null,
+      "trace_file": "cve-2023-23946-review.json",
+      "error": "RuntimeError: ANTHROPIC_API_KEY is not set; configure .env before running the model"
+    },
+    {
+      "cve": "CVE-2024-32002",
+      "period": "post-cutoff",
+      "published": "2024-05-14",
+      "source_commit": "https://github.com/git/git/commit/97065761333fd62db1912d81b489db938d8c991d",
+      "advisory": "https://github.com/git/git/security/advisories/GHSA-8h77-4q3w-gfgv",
+      "keywords": [
+        "submodule",
+        "symlink",
+        "case-insensitive",
+        "recursive clone",
+        "gitdir",
+        "path traversal"
+      ],
+      "description": "Recursive clone on case-insensitive filesystems could replace a submodule directory with a symlink into .git, enabling hook execution during clone.",
+      "configured_cutoff": "2024-03-31",
+      "verdict": "not_run",
+      "answer": null,
+      "trace_file": "cve-2024-32002-review.json",
+      "error": "RuntimeError: ANTHROPIC_API_KEY is not set; configure .env before running the model"
+    }
+  ],
+  "interpretation": "No model result: configure ANTHROPIC_API_KEY and rerun. No memorization inference is possible."
+}

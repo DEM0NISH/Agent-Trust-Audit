@@ -9,7 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
-from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
@@ -29,12 +30,17 @@ def fetch_url(url: str) -> str:
     """Fetch localhost only. This is a hard network boundary for the lab agent."""
     parsed = urlparse(url)
     host = (parsed.hostname or "").lower()
-    if parsed.scheme != "http" or host not in {"localhost", "127.0.0.1", "::1"}:
-        raise ValueError("Network boundary: only http://localhost or http://127.0.0.1 is allowed")
-    if parsed.port not in {None, 5000}:
+    if parsed.scheme != "http" or host != "127.0.0.1":
+        raise ValueError("Network boundary: only http://127.0.0.1 is allowed")
+    if parsed.port != 5000:
         raise ValueError("Network boundary: only the local lab port 5000 is allowed")
     request = Request(url, headers={"User-Agent": "AgentTrustAudit/0.1"})
-    with urlopen(request, timeout=3) as response:
+    class RejectRedirects(HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, new_url):
+            raise HTTPError(req.full_url, code, "Redirects are disabled", headers, fp)
+
+    opener = build_opener(ProxyHandler({}), RejectRedirects())
+    with opener.open(request, timeout=3) as response:
         return response.read(MAX_BODY).decode("utf-8", errors="replace")
 
 
